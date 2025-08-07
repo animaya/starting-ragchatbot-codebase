@@ -7,21 +7,21 @@
 
 /* CSS Variables */
 :root {
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
-    --background: #0f172a;
-    --surface: #1e293b;
-    --surface-hover: #334155;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --border-color: #334155;
-    --user-message: #2563eb;
-    --assistant-message: #374151;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --primary-color: #ff6b35;
+    --primary-hover: #e55a2b;
+    --background: #000000;
+    --surface: #1a1a1a;
+    --surface-hover: #333333;
+    --text-primary: #ff6b35;
+    --text-secondary: #cccccc;
+    --border-color: #333333;
+    --user-message: #ff6b35;
+    --assistant-message: #2a2a2a;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
     --radius: 12px;
-    --focus-ring: rgba(37, 99, 235, 0.2);
-    --welcome-bg: #1e3a5f;
-    --welcome-border: #2563eb;
+    --focus-ring: rgba(255, 107, 53, 0.3);
+    --welcome-bg: #1a1a1a;
+    --welcome-border: #ff6b35;
 }
 
 /* Base Styles */
@@ -829,20 +829,20 @@ body.light-theme .theme-toggle .moon-icon {
 
 /* Light theme variables */
 body.light-theme {
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
+    --primary-color: #ff6b35;
+    --primary-hover: #e55a2b;
     --background: #ffffff;
-    --surface: #f8fafc;
-    --surface-hover: #e2e8f0;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --border-color: #e2e8f0;
-    --user-message: #2563eb;
-    --assistant-message: #f1f5f9;
+    --surface: #f8f8f8;
+    --surface-hover: #e0e0e0;
+    --text-primary: #000000;
+    --text-secondary: #666666;
+    --border-color: #e0e0e0;
+    --user-message: #ff6b35;
+    --assistant-message: #f5f5f5;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --focus-ring: rgba(37, 99, 235, 0.2);
-    --welcome-bg: #eff6ff;
-    --welcome-border: #2563eb;
+    --focus-ring: rgba(255, 107, 53, 0.3);
+    --welcome-bg: #fff5f0;
+    --welcome-border: #ff6b35;
 }
 
 /* Responsive adjustments for theme toggle */
