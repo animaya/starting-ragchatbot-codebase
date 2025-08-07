@@ -51,6 +51,10 @@ class CourseStats(BaseModel):
     total_courses: int
     course_titles: List[str]
 
+class SessionCleanupRequest(BaseModel):
+    """Request model for session cleanup"""
+    session_id: str
+
 # API Endpoints
 
 @app.post("/api/query", response_model=QueryResponse)
@@ -82,6 +86,15 @@ async def get_course_stats():
             total_courses=analytics["total_courses"],
             course_titles=analytics["course_titles"]
         )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/cleanup-session")
+async def cleanup_session(request: SessionCleanupRequest):
+    """Clean up a conversation session"""
+    try:
+        rag_system.session_manager.clear_session(request.session_id)
+        return {"status": "success", "message": f"Session {request.session_id} cleaned up"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

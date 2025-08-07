@@ -95,7 +95,12 @@ class VectorStore:
                 n_results=search_limit,
                 where=filter_dict
             )
-            return SearchResults.from_chroma(results)
+            search_results = SearchResults.from_chroma(results)
+            
+            # Step 4: Enhance metadata with lesson links
+            self._add_lesson_links_to_results(search_results)
+            
+            return search_results
         except Exception as e:
             return SearchResults.empty(f"Search error: {str(e)}")
     
@@ -131,6 +136,59 @@ class VectorStore:
             return {"course_title": course_title}
             
         return {"lesson_number": lesson_number}
+    
+    def _add_lesson_links_to_results(self, search_results: SearchResults):
+        """Add lesson links to search results metadata"""
+        import json
+        
+        # Build a mapping of course_title -> lesson_data for efficiency
+        lesson_links_cache = {}
+        
+        for i, metadata in enumerate(search_results.metadata):
+            course_title = metadata.get('course_title')
+            lesson_number = metadata.get('lesson_number')
+            
+            if not course_title or lesson_number is None:
+                continue
+                
+            # Get lesson data from cache or fetch from course_catalog
+            if course_title not in lesson_links_cache:
+                lesson_links_cache[course_title] = self._get_course_lesson_data(course_title)
+            
+            lesson_data = lesson_links_cache[course_title]
+            if lesson_data:
+                # Find the lesson link for this lesson number
+                lesson_link = lesson_data.get(lesson_number)
+                if lesson_link:
+                    search_results.metadata[i]['lesson_link'] = lesson_link
+    
+    def _get_course_lesson_data(self, course_title: str) -> Optional[Dict[int, str]]:
+        """Get lesson data (number -> link mapping) for a course"""
+        import json
+        
+        try:
+            # Get course metadata from catalog
+            results = self.course_catalog.get(
+                ids=[course_title],
+                include=['metadatas']
+            )
+            
+            if results and results['metadatas'] and len(results['metadatas']) > 0:
+                metadata = results['metadatas'][0]
+                lessons_json = metadata.get('lessons_json')
+                
+                if lessons_json:
+                    lessons_list = json.loads(lessons_json)
+                    # Build mapping of lesson_number -> lesson_link
+                    return {
+                        lesson['lesson_number']: lesson['lesson_link'] 
+                        for lesson in lessons_list 
+                        if lesson.get('lesson_link')
+                    }
+        except Exception as e:
+            print(f"Error retrieving lesson data for {course_title}: {e}")
+        
+        return None
     
     def add_course_metadata(self, course: Course):
         """Add course information to the catalog for semantic search"""

@@ -5,7 +5,7 @@ const API_URL = '/api';
 let currentSessionId = null;
 
 // DOM elements
-let chatMessages, chatInput, sendButton, totalCourses, courseTitles;
+let chatMessages, chatInput, sendButton, totalCourses, courseTitles, newChatButton;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sendButton = document.getElementById('sendButton');
     totalCourses = document.getElementById('totalCourses');
     courseTitles = document.getElementById('courseTitles');
+    newChatButton = document.getElementById('newChatButton');
     
     setupEventListeners();
     createNewSession();
@@ -29,6 +30,8 @@ function setupEventListeners() {
         if (e.key === 'Enter') sendMessage();
     });
     
+    // New chat button
+    newChatButton.addEventListener('click', handleNewChat);
     
     // Suggested questions
     document.querySelectorAll('.suggested-item').forEach(button => {
@@ -122,10 +125,11 @@ function addMessage(content, type, sources = null, isWelcome = false) {
     let html = `<div class="message-content">${displayContent}</div>`;
     
     if (sources && sources.length > 0) {
+        const formattedSources = sources.map(source => formatSourceWithLink(source)).join(', ');
         html += `
             <details class="sources-collapsible">
                 <summary class="sources-header">Sources</summary>
-                <div class="sources-content">${sources.join(', ')}</div>
+                <div class="sources-content">${formattedSources}</div>
             </details>
         `;
     }
@@ -144,12 +148,59 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Helper function to format sources with embedded links
+function formatSourceWithLink(source) {
+    // Check if source contains embedded link using the format: "Source Text|LINK:url"
+    const linkMatch = source.match(/^(.+?)\|LINK:(.+)$/);
+    
+    if (linkMatch) {
+        const sourceText = linkMatch[1];
+        const linkUrl = linkMatch[2];
+        
+        // Return clickable link that opens in new tab
+        return `<a href="${escapeHtml(linkUrl)}" target="_blank" rel="noopener noreferrer" class="source-link">${escapeHtml(sourceText)}</a>`;
+    }
+    
+    // No embedded link - return source as plain text
+    return escapeHtml(source);
+}
+
 // Removed removeMessage function - no longer needed since we handle loading differently
 
 async function createNewSession() {
     currentSessionId = null;
     chatMessages.innerHTML = '';
     addMessage('Welcome to the Course Materials Assistant! I can help you with questions about courses, lessons and specific content. What would you like to know?', 'assistant', null, true);
+}
+
+// Handle new chat button click
+async function handleNewChat() {
+    try {
+        // If there's an active session, send cleanup request to backend
+        if (currentSessionId) {
+            await fetch(`${API_URL}/cleanup-session`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    session_id: currentSessionId
+                })
+            });
+        }
+        
+        // Create new session
+        await createNewSession();
+        
+        // Focus on input for immediate use
+        chatInput.focus();
+        
+    } catch (error) {
+        console.error('Error starting new chat:', error);
+        // Still create new session even if cleanup fails
+        await createNewSession();
+        chatInput.focus();
+    }
 }
 
 // Load course statistics
