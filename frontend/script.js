@@ -5,7 +5,7 @@ const API_URL = '/api';
 let currentSessionId = null;
 
 // DOM elements
-let chatMessages, chatInput, sendButton, totalCourses, courseTitles, newChatButton;
+let chatMessages, chatInput, sendButton, totalCourses, courseTitles, newChatButton, themeToggle;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,8 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     totalCourses = document.getElementById('totalCourses');
     courseTitles = document.getElementById('courseTitles');
     newChatButton = document.getElementById('newChatButton');
+    themeToggle = document.getElementById('themeToggle');
     
     setupEventListeners();
+    initializeTheme();
     createNewSession();
     loadCourseStats();
 });
@@ -32,6 +34,17 @@ function setupEventListeners() {
     
     // New chat button
     newChatButton.addEventListener('click', handleNewChat);
+    
+    // Theme toggle button
+    themeToggle.addEventListener('click', toggleTheme);
+    
+    // Keyboard accessibility for theme toggle
+    themeToggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleTheme();
+        }
+    });
     
     // Suggested questions
     document.querySelectorAll('.suggested-item').forEach(button => {
@@ -238,5 +251,41 @@ async function loadCourseStats() {
         if (courseTitles) {
             courseTitles.innerHTML = '<span class="error">Failed to load courses</span>';
         }
+    }
+}
+
+// Theme Functions
+function initializeTheme() {
+    // Check for saved theme preference or default to dark theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        updateThemeToggleAria('Switch to dark theme');
+    } else {
+        document.body.classList.remove('light-theme');
+        updateThemeToggleAria('Switch to light theme');
+    }
+}
+
+function toggleTheme() {
+    const isLight = document.body.classList.contains('light-theme');
+    
+    if (isLight) {
+        // Switch to dark theme
+        document.body.classList.remove('light-theme');
+        localStorage.setItem('theme', 'dark');
+        updateThemeToggleAria('Switch to light theme');
+    } else {
+        // Switch to light theme
+        document.body.classList.add('light-theme');
+        localStorage.setItem('theme', 'light');
+        updateThemeToggleAria('Switch to dark theme');
+    }
+}
+
+function updateThemeToggleAria(label) {
+    if (themeToggle) {
+        themeToggle.setAttribute('aria-label', label);
     }
 }
